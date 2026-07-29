@@ -37,6 +37,8 @@ explicit lifecycle surface and preserves a verifiable delivery boundary.
 - Four required task fields: `delegation_id`, `need`, `boundaries`, and
   `deliverable`.
 - A caller-preserved receipt nonce and exact receipt verification.
+- An optional, bounded `source_packet` for native Codex GPT web research or
+  page-reading results.
 - Read-only workers by default.
 - A profile allowlist and a cross-process active-worker limit.
 - Local result, event, and error caps.
@@ -90,7 +92,8 @@ directory is under an allowed root.
 
 1. Call `provider_worker_start` with a fresh delegation ID, the bounded need,
    boundaries, deliverable, an absolute working directory, and a configured
-   profile.
+   profile. Optionally include a sanitized `source_packet` from Codex GPT's
+   native web-search or page-reading tools.
 2. Preserve the returned `job_id` and `receipt_nonce`.
 3. Poll with `provider_worker_status` or wait for at most 50 seconds per
    `provider_worker_wait` call.
@@ -109,6 +112,22 @@ disabled. They retain the built-in Codex CLI harness allowed by the selected
 sandbox. Other MCP or App/Connector tools are configuration-dependent and must
 be verified in the worker's actual tool surface before delegation; schema
 visibility alone does not prove that a tool is callable.
+
+## Web research and page reading
+
+The custom-provider profiles currently do **not** receive Codex's native
+`web_search` tool, even when the CLI `--search` flag is set. Codex GPT does.
+For current public information, have the root run native Codex web search and
+page reading first, then pass its concise, URL-bearing result as
+`source_packet` to `provider_worker_start` or `provider_worker_followup`.
+The worker sees that packet as untrusted reference material, not executable
+instructions. This keeps retrieval and citations on the native Codex surface
+while MiniMax performs bounded analysis economically.
+
+If a task requires autonomous, iterative search or direct page interaction,
+route that task to a native OpenAI-provider Codex subagent instead. Do not
+fall back to shell `curl`, a signed-in browser session, or OpenClaw merely to
+give a custom-provider worker network access.
 
 In a clean MiniMax dogfood run, several App/Connector schemas were visible, but
 the in-app browser was not exposed and the visible Node REPL bridge returned an
@@ -156,6 +175,8 @@ negotiation, and workspace-write enforcement.
   lifecycle state.
 - Workers do not inherit the root task's signed-in browser state, and
   marketplace-plugin tools are disabled.
+- Custom-provider workers cannot currently call native Codex `web_search`; use
+  the root-native `source_packet` bridge or a native OpenAI-provider subagent.
 - Non-plugin MCP and App/Connector availability is runtime-dependent; verify
   both schema exposure and a safe read-only call before relying on a tool.
 - Follow-up requires a recoverable Codex thread ID from the completed worker.

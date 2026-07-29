@@ -1,6 +1,6 @@
 {
   "name": "custom-provider-orchestrator",
-  "version": "0.1.0",
+  "version": "0.1.0+codex.20260729173755",
   "description": "Run custom-provider models as isolated top-level Codex workers without an OpenClaw gateway.",
   "author": {
     "name": "Daimon Locus",
