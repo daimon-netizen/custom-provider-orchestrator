@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "custom-provider-orchestrator": {
+      "command": "python3",
+      "args": [
+        "./scripts/custom_provider_mcp.py"
+      ],
+      "cwd": ".",
+      "env_vars": [
+        "CODEX_HOME",
+        "CODEX_CLI_PATH",
+        "CUSTOM_PROVIDER_PROFILES",
+        "CUSTOM_PROVIDER_WORKSPACE_ROOTS",
+        "CUSTOM_PROVIDER_MAX_ACTIVE_JOBS"
+      ],
+      "tool_timeout_sec": 60
+    }
+  }
+}

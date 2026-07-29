@@ -1,0 +1,27 @@
+name: test
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  unit:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.11", "3.12"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Run dispatcher tests
+        working-directory: plugins/custom-provider-orchestrator
+        run: python -m unittest discover -s tests -v
+      - name: Compile Python sources
+        working-directory: plugins/custom-provider-orchestrator
+        run: python -m compileall -q scripts tests

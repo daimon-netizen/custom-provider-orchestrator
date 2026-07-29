@@ -1,0 +1,39 @@
+{
+  "name": "custom-provider-orchestrator",
+  "version": "0.1.0",
+  "description": "Run custom-provider models as isolated top-level Codex workers without an OpenClaw gateway.",
+  "author": {
+    "name": "Daimon Locus",
+    "url": "https://github.com/daimon-netizen"
+  },
+  "homepage": "https://github.com/daimon-netizen/custom-provider-orchestrator",
+  "repository": "https://github.com/daimon-netizen/custom-provider-orchestrator",
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "custom-provider",
+    "multi-agent",
+    "orchestration",
+    "mcp"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Custom Provider Orchestrator",
+    "shortDescription": "Coordinate Codex GPT with custom-provider workers.",
+    "longDescription": "Routes bounded tasks to custom-provider models through isolated top-level Codex runs. Codex keeps orchestration authority and native tools; workers receive explicit task envelopes, nonces, timeouts, and sandbox limits.",
+    "developerName": "Daimon Locus",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/daimon-netizen/custom-provider-orchestrator",
+    "defaultPrompt": [
+      "Delegate this bounded task to a MiniMax Codex worker.",
+      "Check the status of my custom-provider workers.",
+      "Ask a custom-provider worker for an independent review."
+    ]
+  },
+  "mcpServers": "./.mcp.json"
+}

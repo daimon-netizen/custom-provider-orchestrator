@@ -1,0 +1,19 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+__pycache__/
+*.py[cod]
+*.log
+*.pid
+
+# Local Codex and dispatcher state
+.codex/
+jobs/
+results/
+artifacts/
+
+# Local provider and credential configuration
+config.toml
+credentials.json
+auth.json
