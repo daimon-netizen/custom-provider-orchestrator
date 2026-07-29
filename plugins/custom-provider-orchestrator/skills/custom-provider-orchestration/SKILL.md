@@ -15,9 +15,21 @@ Use native collaboration tools for OpenAI-provider subagents. Use the
 `custom-provider-orchestrator` MCP tools only when the requested role should run
 through a configured custom-provider profile.
 
-The MCP worker is an independent top-level `codex exec` session. It can use the
-Codex Harness allowed by its sandbox, but it does not appear in the native
-subagent panel and cannot be controlled with `followup_task` or `wait_agent`.
+The MCP worker is an independent top-level `codex exec` session launched with
+native multi-agent features and marketplace plugins disabled. It can use the
+built-in Codex CLI harness allowed by its sandbox, but it does not appear in
+the native subagent panel and cannot be controlled with `followup_task` or
+`wait_agent`.
+
+Do not assume that the worker inherits the root task's browser, Apps,
+Connectors, or MCP tools. Inspect the actual worker tool surface and make one
+safe read-only probe before relying on a configuration-dependent tool. Schema
+visibility is not proof that a tool is callable. This release does not promise
+access to the root task's signed-in browser session.
+
+Multi-turn context is resumable rather than continuously resident.
+`provider_worker_followup` launches a fresh `codex exec resume` process against
+the completed worker's thread ID.
 
 ## Delegate
 
@@ -34,8 +46,8 @@ worker has a disjoint write scope. Writable calls are rejected unless that
 directory is under `CUSTOM_PROVIDER_WORKSPACE_ROOTS`.
 
 The dispatcher returns a `job_id` and `receipt_nonce`. Preserve both. Accept a
-result only when `receipt_verified` is true and the returned Delegation-ID
-matches.
+result only when `receipt_verified` is true and the returned Delegation-ID and
+receipt nonce match.
 
 ## Supervise
 

@@ -65,8 +65,8 @@ argument.
 - Allowed profiles: `minimax`, `minimax-fast`
 - Sandbox: `read-only`
 - Workspace writes: disabled
-- Worker multi-agent tools: disabled
-- Worker plugins: disabled
+- Worker native subagent tools: disabled
+- Worker marketplace plugins: disabled
 - Maximum active workers: 2
 - Per-stream event/error cap: 5 MB
 - Completed-job retention: 7 days
@@ -80,7 +80,7 @@ Optional environment configuration:
 | `CUSTOM_PROVIDER_WORKSPACE_ROOTS` | Platform-separated writable root allowlist |
 | `CUSTOM_PROVIDER_MAX_ACTIVE_JOBS` | Active-worker ceiling, hard-capped at 8 |
 | `CODEX_CLI_PATH` | Absolute Codex executable override |
-| `CODEX_HOME` | Codex home and local dispatcher state root |
+| `CODEX_HOME` | Codex home; dispatcher jobs default to `${CODEX_HOME}/custom-provider-orchestrator/jobs` |
 
 Setting writable roots does not itself authorize a write. The root must also
 request `sandbox = "workspace-write"` for a bounded task whose working
@@ -95,12 +95,32 @@ directory is under an allowed root.
 3. Poll with `provider_worker_status` or wait for at most 50 seconds per
    `provider_worker_wait` call.
 4. Accept a result only when `receipt_verified` is true and the returned
-   delegation ID matches.
+   delegation ID and receipt nonce both match.
 5. Use `provider_worker_followup` only after a completed run exposes a
    recoverable Codex thread.
 6. Cancel work that is no longer needed or has left its boundary.
 7. Close a job only after preserving any needed result; close deletes its
    local job directory.
+
+## Tool and session boundary
+
+Workers launch with native multi-agent features and marketplace plugins
+disabled. They retain the built-in Codex CLI harness allowed by the selected
+sandbox. Other MCP or App/Connector tools are configuration-dependent and must
+be verified in the worker's actual tool surface before delegation; schema
+visibility alone does not prove that a tool is callable.
+
+In a clean MiniMax dogfood run, several App/Connector schemas were visible, but
+the in-app browser was not exposed and the visible Node REPL bridge returned an
+unsupported-call error. Therefore this release does not promise access to the
+root task's signed-in browser session, browser tabs, or arbitrary MCP tools.
+Browser-dependent external actions remain with the Codex root unless a worker
+tool probe proves the required capability.
+
+Long-context multi-turn work is supported as resumable turns, not as one
+continuously resident process. `provider_worker_followup` starts a fresh
+`codex exec resume` process against the completed worker's thread ID and uses a
+new task envelope and receipt nonce.
 
 ## Development
 
@@ -134,6 +154,10 @@ negotiation, and workspace-write enforcement.
   subagent panel.
 - Workers do not inherit native child-agent handles, context forks, or UI
   lifecycle state.
+- Workers do not inherit the root task's signed-in browser state, and
+  marketplace-plugin tools are disabled.
+- Non-plugin MCP and App/Connector availability is runtime-dependent; verify
+  both schema exposure and a safe read-only call before relying on a tool.
 - Follow-up requires a recoverable Codex thread ID from the completed worker.
 - The dispatcher requires a locally usable `codex exec` environment and
   correctly configured custom-provider profiles.
